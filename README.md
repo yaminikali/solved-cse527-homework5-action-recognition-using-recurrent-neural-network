@@ -1,0 +1,69 @@
+Download Link: https://assignmentchef.com/product/solved-cse527-homework5-action-recognition-using-recurrent-neural-network
+<br>
+In this homework, you will be doing action recognition using Recurrent Neural Network (RNN), (Long-Short Term Memory) LSTM in particular. You will be given a dataset called UCF101, which consists of 101 different actions/classes and for each action, there will be 145 samples. We tagged each sample into either training or testing. Each sample is supposed to be a short video, but we sampled 25 frames from each videos to reduce the amount of data. Consequently, a training sample is an image tuple that forms a 3D volume with one dimension encoding <em>temporal correlation</em> between frames and a label indicating what action it is.
+
+To tackle this problem, we aim to build a neural network that can not only capture spatial information of each frame but also temporal information between frames. Fortunately, you don’t have to do this on your own. RNN — a type of neural network designed to deal with time-series data — is right here for you to use. In particular, you will be using LSTM for this task.
+
+Instead of training an end-to-end neural network from scratch whose computation is prohibitively expensive, we divide this into two steps: feature extraction and modelling. Below are the things you need to implement for this homework:
+
+<strong><a href="https://pytorch.org/docs/stable/torchvision/models.html">{35 pts} Feature extraction</a></strong><a href="https://pytorch.org/docs/stable/torchvision/models.html">. Use any of the </a><u><a href="https://pytorch.org/docs/stable/torchvision/models.html">pre-trained models</a></u>
+
+<u><a href="https://pytorch.org/docs/stable/torchvision/models.html">(https://p</a></u><a href="https://pytorch.org/docs/stable/torchvision/models.html">y</a><u><a href="https://pytorch.org/docs/stable/torchvision/models.html">torch.or</a></u><a href="https://pytorch.org/docs/stable/torchvision/models.html">g</a><u><a href="https://pytorch.org/docs/stable/torchvision/models.html">/docs/stable/torchvision/models.html)</a></u><a href="https://pytorch.org/docs/stable/torchvision/models.html"> to extra</a>ct features from each frame. Specifically, we recommend not to use the activations of the last layer as the features tend to be task specific towards the end of the network. <strong>hints</strong>:
+
+A good starting point would be to use a pre-trained VGG16 network, we suggest first fully connected layer torchvision.models.vgg16 (4096 dim) as features of each video frame. This will result into a
+
+4096×25 matrix for each video.
+
+Normalize your images using torchvision.transforms
+
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.2
+
+24, 0.225]) prep = transforms.Compose([ transforms.ToTensor(), normalize ]) prep(img)
+
+The mean and std. mentioned above is specific to Imagenet data
+
+More details of image preprocessing in PyTorch can be found at <u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">http://p</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">y</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">torch.or</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">g</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">/tutorials/be</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">g</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">inner/data_loadin</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">g</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">_tutorial.html</a></u>
+
+<u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">(http://p</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">y</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">torch.or</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">g</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">/tutorials/be</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">g</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">inner/data_loadin</a></u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">g</a><u><a href="http://pytorch.org/tutorials/beginner/data_loading_tutorial.html">_tutorial.html)</a></u>
+
+<strong>{35 pts} Modelling</strong>. With the extracted features, build an LSTM network which takes a <strong>dx25</strong> sample as input (where <strong>d</strong> is the dimension of the extracted feature for each frame), and outputs the action label of that sample.
+
+<strong>{20 pts} Evaluation</strong>. After training your network, you need to evaluate your model with the testing data by computing the prediction accuracy <strong>(5 points)</strong>. The baseline test accuracy for this data is 75%, and <strong>10 points</strong> out of 20 is for achieving test accuracy greater than the baseline. Moreover, you need to compare <strong>(5 points)</strong> the result of your network with that of support vector machine (SVM) (stacking the <strong>dx25</strong> feature matrix to a long vector and train a SVM).
+
+<strong>{10 pts} Report</strong>. Details regarding the report can be found in the submission section below.
+
+Notice that the size of the raw images is 256×340, whereas your pre-trained model might take <strong>nxn</strong> images as inputs. To solve this problem, instead of resizing the images which unfavorably changes the spatial ratio, we take a better solution: Cropping five <strong>nxn</strong> images, one at the image center and four at the corners and compute the <strong>d</strong>dim features for each of them, and average these five <strong>d</strong>-dim feature to get a final feature representation for the raw image. For example, VGG takes 224×224 images as inputs, so we take the five 224×224 croppings of the image, compute 4096-dim VGG features for each of them, and then take the mean of these five 4096-dim vectors to be the representation of the image.
+
+In order to save you computational time, you need to do the classification task only for <strong>the first 25</strong> classes of the whole dataset. The same applies to those who have access to GPUs. <strong>Bonus 10 points for running and reporting on the entire 101 classes.</strong>
+
+<h1>Dataset</h1>
+
+Download <strong>dataset</strong> at <u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">UCF101 </a></u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">(</a><u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">http://vision.cs.ston</a></u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">y</a><u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">brook.edu/~</a></u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">y</a><u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">an</a></u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">g</a><u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">wan</a></u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">g</a><u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">/public/UCF101_ima</a></u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">g</a><u><a href="http://vision.cs.stonybrook.edu/~yangwang/public/UCF101_images.tar">es.tar)</a></u>(Image data for each video) and the <strong>annos folder</strong> which has the video labels and the label to class name mapping is included in the assignment folder uploaded.
+
+UCF101 dataset contains 101 actions and 13,320 videos in total.
+
+annos/actions.txt
+
+lists all the actions ( ApplyEyeMakeup , .., YoYo )
+
+annots/videos_labels_subsets.txt
+
+lists all the videos ( v_000001 , .., v_013320 ) labels ( 1 , .., 101 )
+
+subsets ( 1 for train, 2 for test) images/
+
+each folder represents a video
+
+the video/folder name to class mapping can be found using annots/videos_labels_subsets.txt , for e.g. v_000001 belongs to class 1 i.e. ApplyEyeMakeup each video folder contains 25 frames
+
+<h1>Some Tutorials</h1>
+
+Good materials for understanding RNN and LSTM <u><a href="http://blog.echen.me/">http://blo</a></u><a href="http://blog.echen.me/">g</a><u><a href="http://blog.echen.me/">.echen.me </a></u><a href="http://blog.echen.me/">(</a><u><a href="http://blog.echen.me/">http://blo</a></u><a href="http://blog.echen.me/">g</a><u><a href="http://blog.echen.me/">.echen.me) </a><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">http://karpathy.</a></u><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">g</a><u><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">ithub.io/2015/05/21/rnn-effectiveness/ </a></u><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">(</a><u><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">http://karpathy.</a></u><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">g</a><u><a href="https://karpathy.github.io/2015/05/21/rnn-effectiveness/">ithub.io/2015/05/21/rnneffectiveness/)</a></u>
+
+<u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">http://colah.</a></u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">g</a><u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">ithub.io/posts/2015-08-Understandin</a></u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">g</a><u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">-LSTMs/ </a></u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">(</a><u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">http://colah.</a></u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">g</a><u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">ithub.io/posts/2015-08Understandin</a></u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">g</a><u><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">-LSTMs/)</a></u>
+
+Implementing RNN and LSTM with PyTorch
+
+<u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">LSTM with P</a></u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">y</a><u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">Torch </a></u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">(</a><u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">http://p</a></u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">y</a><u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">torch.or</a></u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">g</a><u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">/tutorials/be</a></u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">g</a><u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">inner/nlp/sequence_models_tutorial.html#sphx-</a></u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">g</a><u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">lrbe</a></u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">g</a><u><a href="http://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html#sphx-glr-beginner-nlp-sequence-models-tutorial-py">inner-nlp-sequence-models-tutorial-py)</a></u>
+
+<u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">RNN with P</a></u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">y</a><u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">Torch </a></u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">(</a><u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">http://p</a></u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">y</a><u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">torch.or</a></u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">g</a><u><a href="http://pytorch.org/tutorials/intermediate/char_rnn_classification_tutorial.html">/tutorials/intermediate/char_rnn_classification_tutorial.html)</a></u>
